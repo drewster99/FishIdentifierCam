@@ -32,29 +32,43 @@ struct ContentView: View {
 
     var body: some View {
         VStack {
-            // Settings button
-            HStack {
-                Button(action: {
-                    // Settings action will go here
-                }) {
-                    Image(systemName: "gear")
-                        .font(.system(size: 22))
-                        .foregroundColor(.primary)
+            VStack {
+                // Settings button
+                HStack {
+                    Button(action: {
+                        // Settings action will go here
+                    }) {
+                        Image(systemName: "gear")
+                            .font(.system(size: 22))
+                            .foregroundColor(.primary)
+                    }
+
+                    Spacer()
+
+//                    Button(action: {
+//                        // Photo library import action
+//                        loadPickedPhotos()
+//                    }) {
+                        PhotosPicker(selection: $pickedPhotoItems,
+                                     maxSelectionCount: nil,
+                                     selectionBehavior: .default,
+                                     matching: .any(of: [.images]),
+                                     preferredItemEncoding: .automatic) {
+
+                            Image(systemName: "photo")
+                                .font(.system(size: 22))
+                                .foregroundColor(.primary)
+                        }
+//                    }
                 }
-
-                Spacer()
-
-                Button(action: {
-                    // Photo library import action
-                }) {
-                    Image(systemName: "photo")
-                        .font(.system(size: 22))
-                        .foregroundColor(.primary)
+                .padding()
+            }
+            .onChange(of: pickedPhotoItems) {
+                Task {
+                    loadPickedPhotos()
                 }
             }
-            .padding()
 
-            Spacer()
             // Main photo scroller with camera view
             HorizontalPhotoScroller(
                 photos: capturedPhotos,
@@ -79,44 +93,57 @@ struct ContentView: View {
             }
             Spacer()
         }
-        .sheet(isPresented: $isPresentingPhotosPicker, onDismiss: {
-            // on dismiss
-
-            for item in pickedPhotoItems {
-                item.loadTransferable(type: Image.self) { result in
-                    DispatchQueue.main.async {
-                        //                        guard imageSelection == self.imageSelection else { return }
-                        switch result {
-                        case .success(let image?):
-                            // Handle the success case with the image.
-                            capturedPhotos.append(
-                                CapturedPhoto(
-                                    id: UUID(),
-                                    image: UIImage(),
-                                    identificationStatus: .notProcessed,
-                                    fishData: nil
-                                )
+//        .sheet(isPresented: $isPresentingPhotosPicker, onDismiss: {
+//            // on dismiss
+//            print("*** pickerdoo** - \(pickedPhotoItems.count) items")
+//            loadPickedPhotos()
+//        }, content: {
+//            PhotosPicker("Pick photos",
+//                         selection: $pickedPhotoItems,
+//                         maxSelectionCount: nil,
+//                         selectionBehavior: .default,
+//                         matching: .any(of: [.images]),
+//                         preferredItemEncoding: .automatic)
+//        })
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .environmentObject(cameraViewModel)
+    }
+    
+    // Process picked photo items and convert them to UIImage
+    private func loadPickedPhotos() {
+        for item in pickedPhotoItems {
+            print("  **** Processing item: \(item)")
+            // Load the raw data representation of the image
+            item.loadTransferable(type: Data.self) { result in
+                DispatchQueue.main.async {
+                    switch result {
+                    case .success(let imageData?):
+                        if let uiImage = UIImage(data: imageData) {
+                            let newPhoto = CapturedPhoto(
+                                id: UUID(),
+                                image: uiImage,
+                                identificationStatus: .notProcessed,
+                                fishData: nil
                             )
-                        case .success(nil):
-                            // Handle the success case with an empty value.
-                            fatalError("success but nothing?")
-                        case .failure(let error):
-                            // Handle the failure case with the provided error.
-                            fatalError("really fatal: \(error)")
+                            withAnimation {
+                                self.capturedPhotos.append(newPhoto)
+                                // Make the newly imported photo the selected one
+                                self.selectedPhoto = newPhoto
+                            }
+                            print("    **** Successfully loaded image")
+                        } else {
+                            print("    **** Failed to create UIImage from data")
                         }
+                    case .success(nil):
+                        print("    **** Successfully loaded but no data found")
+                    case .failure(let error):
+                        print("    **** Failed to load image: \(error.localizedDescription)")
                     }
                 }
             }
-        }, content: {
-            PhotosPicker("Pick photos",
-                         selection: $pickedPhotoItems,
-                         maxSelectionCount: nil,
-                         selectionBehavior: .default,
-                         matching: .any(of: [.images]),
-                         preferredItemEncoding: .automatic)
-        })
-        .ignoresSafeArea()
-        .environmentObject(cameraViewModel)
+        }
+        // Clear the picked items after processing
+        pickedPhotoItems = []
     }
 }
 
