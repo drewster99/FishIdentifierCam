@@ -89,6 +89,9 @@ struct ContentView: View {
                         capturedPhotos.append(newPhoto)
                         selectedPhoto = newPhoto
                     }
+                    
+                    // Save the new photo
+                    savePhoto(newPhoto)
                 }
             }
             Spacer()
@@ -107,6 +110,10 @@ struct ContentView: View {
 //        })
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .environmentObject(cameraViewModel)
+        .onAppear {
+            // Load saved photos when the view appears
+            loadSavedPhotos()
+        }
     }
     
     // Process picked photo items and convert them to UIImage
@@ -130,6 +137,10 @@ struct ContentView: View {
                                 // Make the newly imported photo the selected one
                                 self.selectedPhoto = newPhoto
                             }
+                            
+                            // Save the new photo
+                            savePhoto(newPhoto)
+                            
                             print("    **** Successfully loaded image")
                         } else {
                             print("    **** Failed to create UIImage from data")
@@ -145,6 +156,25 @@ struct ContentView: View {
         // Clear the picked items after processing
         pickedPhotoItems = []
     }
+    
+    // Load saved photos from storage
+    private func loadSavedPhotos() {
+        let savedPhotos = StorageManager.shared.loadSavedPhotos()
+        if !savedPhotos.isEmpty {
+            self.capturedPhotos = savedPhotos
+            // Select the most recent photo
+            self.selectedPhoto = savedPhotos.first
+        }
+    }
+    
+    // Save a photo to storage
+    private func savePhoto(_ photo: CapturedPhoto) {
+        do {
+            try StorageManager.shared.savePhoto(photo)
+        } catch {
+            print("Failed to save photo: \(error.localizedDescription)")
+        }
+    }
 }
 
 // Model to represent a captured photo with identification status
@@ -153,8 +183,9 @@ struct CapturedPhoto: Identifiable {
     var image: UIImage
     var identificationStatus: IdentificationStatus = .notProcessed
     var fishData: FishData? = nil
-
-    enum IdentificationStatus {
+    var captureDate: Date = Date()
+    
+    enum IdentificationStatus: Codable {
         case notProcessed
         case processing
         case identified
@@ -163,7 +194,7 @@ struct CapturedPhoto: Identifiable {
 }
 
 // Simple fish data model (will be expanded based on the API response)
-struct FishData {
+struct FishData: Codable {
     var scientificName: String
     var commonName: String
     var confidence: Double
