@@ -1,0 +1,790 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JSON Viewer</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 20px;
+            background-color: #f5f5f5;
+            color: #333;
+        }
+        h1, h2, h3 {
+            color: #2c3e50;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .file-input {
+            margin-bottom: 20px;
+            padding: 10px;
+            background-color: #eee;
+            border-radius: 4px;
+        }
+        .control-panel {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-bottom: 20px;
+            align-items: center;
+        }
+        button, input[type="file"], select {
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            background-color: #f8f8f8;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        button {
+            background-color: #3498db;
+            color: white;
+            border: none;
+        }
+        button:hover {
+            background-color: #2980b9;
+        }
+        .json-container {
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            padding: 15px;
+            margin-top: 20px;
+            max-height: 70vh;
+            overflow-y: auto;
+            background-color: #fff;
+        }
+        .key {
+            color: #2980b9;
+            font-weight: bold;
+        }
+        .string {
+            color: #27ae60;
+        }
+        .number {
+            color: #e74c3c;
+        }
+        .boolean {
+            color: #f39c12;
+        }
+        .null {
+            color: #7f8c8d;
+        }
+        .section {
+            margin-bottom: 15px;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 15px;
+        }
+        .collapse-btn {
+            cursor: pointer;
+            color: #3498db;
+            margin-left: 5px;
+            font-size: 14px;
+        }
+        .hidden {
+            display: none;
+        }
+        .search-container {
+            margin-bottom: 15px;
+        }
+        .search-input {
+            padding: 8px;
+            width: 300px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        .highlight {
+            background-color: yellow;
+        }
+        .path-display {
+            font-family: monospace;
+            margin-top: 10px;
+            padding: 8px;
+            background-color: #f0f0f0;
+            border-radius: 4px;
+            overflow-x: auto;
+        }
+        .expandable {
+            cursor: pointer;
+            user-select: none;
+        }
+        .expandable:hover {
+            text-decoration: underline;
+        }
+        .result-info {
+            color: #666;
+            font-style: italic;
+        }
+        .tabs {
+            display: flex;
+            margin-bottom: 20px;
+            border-bottom: 1px solid #ddd;
+        }
+        .tab {
+            padding: 10px 20px;
+            cursor: pointer;
+            background-color: #f8f8f8;
+            border: 1px solid #ddd;
+            border-bottom: none;
+            margin-right: 5px;
+            border-radius: 4px 4px 0 0;
+        }
+        .tab.active {
+            background-color: white;
+            border-bottom: 1px solid white;
+            margin-bottom: -1px;
+        }
+        .tab-content {
+            display: none;
+        }
+        .tab-content.active {
+            display: block;
+        }
+        pre {
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            background-color: #f8f8f8;
+            padding: 10px;
+            border-radius: 4px;
+            overflow-x: auto;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>JSON Viewer for Debugging</h1>
+        
+        <div class="file-input">
+            <label for="jsonFile">Select a JSON file to load:</label>
+            <input type="file" id="jsonFile" accept=".json">
+            <button id="loadSampleBtn">Load Sample Data</button>
+        </div>
+        
+        <div id="jsonContent" style="display: none;">
+            <div class="tabs">
+                <div class="tab active" data-tab="tab-explorer">Explorer</div>
+                <div class="tab" data-tab="tab-tree">Tree View</div>
+                <div class="tab" data-tab="tab-raw">Raw JSON</div>
+                <div class="tab" data-tab="tab-table">Table View</div>
+            </div>
+            
+            <div class="control-panel">
+                <div class="search-container">
+                    <input type="text" id="searchInput" class="search-input" placeholder="Search in JSON...">
+                </div>
+                <button id="expandAllBtn">Expand All</button>
+                <button id="collapseAllBtn">Collapse All</button>
+                <label for="filterShapeValues">
+                    <input type="checkbox" id="filterShapeValues" checked> Hide 'shape' values
+                </label>
+            </div>
+            
+            <div id="pathDisplay" class="path-display">Root</div>
+            
+            <div id="tab-explorer" class="tab-content active">
+                <div id="jsonExplorer" class="json-container"></div>
+            </div>
+            
+            <div id="tab-tree" class="tab-content">
+                <div id="jsonTree" class="json-container"></div>
+            </div>
+            
+            <div id="tab-raw" class="tab-content">
+                <pre id="rawJson"></pre>
+            </div>
+            
+            <div id="tab-table" class="tab-content">
+                <div id="tableView" class="json-container"></div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        let currentJson = null;
+        let sampleJson = {
+            "feedback-id": 2611585,
+            "info": {
+                "classification-model-version": 8,
+                "models": {
+                    "classification-model": {
+                        "author": "Codahead@Andrew",
+                        "crop-type": "rectangle",
+                        "date": "19-08-2024",
+                        "num-of-class": 427,
+                        "version": 7.1
+                    },
+                    "detector-model": {
+                        "author": "Codahead@Andrew",
+                        "date": "31-07-2024",
+                        "input-img-size": 640,
+                        "model": "YOLO v10 medium",
+                        "version": 1
+                    },
+                    "segmentation-model": {
+                        "author": "Codahead@Andrew",
+                        "date": "31-07-2024",
+                        "input-img-size": 416,
+                        "model": "FPN_resnet_18",
+                        "version": 1
+                    }
+                },
+                "segmentation-model-version": 6,
+                "time": "06:50PM on May 13, 2025"
+            },
+            "results": [
+                {
+                    "detection-score": 0.978058815002441,
+                    "shape": {
+                        // The shape data is very large, so represented by a placeholder in this sample
+                        "x1": 706,
+                        "y1": 270,
+                        // ... many more coordinates
+                    },
+                    "species": [
+                        {
+                            "accuracy": 1,
+                            "annotation-id": "cb0c1c4b-164e-51ba-a5d2-6f742b0f1555",
+                            "distance": 1,
+                            "drawn-fish-id": 159295,
+                            "fishangler-data": {
+                                "bodyOfWaterCount": 5834,
+                                "brack": true,
+                                "class": "Teleostei",
+                                "coloration": "The top of the northern pike is dark green to brownish green, the sides are slightly lighter in color with irregular rows of small oval shaped yellow spots that cover the body, a small gold spot is exposed on each scale; the belly is creamy white. The fins are can range from green to white and sometimes red-orange with dark markings on the edges.",
+                                "commonFamily": "Pikes",
+                                "commonLength": 40,
+                                "commonNames": [
+                                    "American pike",
+                                    "Common pike",
+                                    "Great Lakes pike",
+                                    "Great northern pickerel",
+                                    "Great northern pike",
+                                    "Jack",
+                                    "Jackfish",
+                                    "Northern pike",
+                                    "Pickerel",
+                                    "Pike",
+                                    "Snake",
+                                    "Wolf"
+                                ],
+                                // More fishangler-data properties...
+                                "title": "Northern pike"
+                            },
+                            "fishangler-id": "2a8d971e-de97-4295-8701-b4ea1a8f4da1",
+                            "image-id": "67793",
+                            "name": "Esox lucius",
+                            "species-id": "2a8d971e-de97-4295-8701-b4ea1a8f4da1",
+                            "times": 15
+                        }
+                    ]
+                }
+            ]
+        };
+
+        // DOM Elements
+        const jsonFileInput = document.getElementById('jsonFile');
+        const jsonContent = document.getElementById('jsonContent');
+        const jsonExplorer = document.getElementById('jsonExplorer');
+        const jsonTree = document.getElementById('jsonTree');
+        const rawJson = document.getElementById('rawJson');
+        const tableView = document.getElementById('tableView');
+        const searchInput = document.getElementById('searchInput');
+        const expandAllBtn = document.getElementById('expandAllBtn');
+        const collapseAllBtn = document.getElementById('collapseAllBtn');
+        const filterShapeValues = document.getElementById('filterShapeValues');
+        const pathDisplay = document.getElementById('pathDisplay');
+        const loadSampleBtn = document.getElementById('loadSampleBtn');
+        const tabs = document.querySelectorAll('.tab');
+        const tabContents = document.querySelectorAll('.tab-content');
+
+        // Event Listeners
+        jsonFileInput.addEventListener('change', handleFileSelect);
+        searchInput.addEventListener('input', debounce(handleSearch, 300));
+        expandAllBtn.addEventListener('click', expandAll);
+        collapseAllBtn.addEventListener('click', collapseAll);
+        filterShapeValues.addEventListener('change', refreshViews);
+        loadSampleBtn.addEventListener('click', loadSampleData);
+
+        tabs.forEach(tab => {
+            tab.addEventListener('click', () => {
+                tabs.forEach(t => t.classList.remove('active'));
+                tabContents.forEach(tc => tc.classList.remove('active'));
+                
+                tab.classList.add('active');
+                const targetTab = document.getElementById(tab.dataset.tab);
+                if (targetTab) targetTab.classList.add('active');
+            });
+        });
+
+        // Functions
+        function handleFileSelect(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    try {
+                        currentJson = JSON.parse(e.target.result);
+                        refreshViews();
+                        jsonContent.style.display = 'block';
+                    } catch (error) {
+                        alert('Invalid JSON file: ' + error.message);
+                    }
+                };
+                reader.readAsText(file);
+            }
+        }
+
+        function loadSampleData() {
+            currentJson = JSON.parse(JSON.stringify(sampleJson));
+            refreshViews();
+            jsonContent.style.display = 'block';
+        }
+
+        function refreshViews() {
+            if (!currentJson) return;
+            
+            const shouldFilterShape = filterShapeValues.checked;
+            
+            // Explorer View
+            jsonExplorer.innerHTML = '';
+            const filteredJson = shouldFilterShape ? filterShapeData(currentJson) : currentJson;
+            jsonExplorer.appendChild(renderJsonExplorer('root', filteredJson, []));
+            
+            // Tree View
+            jsonTree.innerHTML = '';
+            jsonTree.appendChild(renderJsonTree(filteredJson));
+            
+            // Raw View
+            rawJson.textContent = JSON.stringify(filteredJson, null, 2);
+            
+            // Table View
+            tableView.innerHTML = '';
+            tableView.appendChild(renderJsonTable(filteredJson));
+        }
+
+        function filterShapeData(data) {
+            if (typeof data !== 'object' || data === null) {
+                return data;
+            }
+            
+            if (Array.isArray(data)) {
+                return data.map(item => filterShapeData(item));
+            }
+            
+            const result = {};
+            for (const key in data) {
+                if (key === 'shape') {
+                    // Include just a few properties to indicate shape data exists
+                    const shapeCount = Object.keys(data.shape).length;
+                    result.shape = { 
+                        note: `[${shapeCount} shape coordinates hidden]`,
+                        sample: `First few: x1=${data.shape.x1}, y1=${data.shape.y1}, ...`
+                    };
+                } else {
+                    result[key] = filterShapeData(data[key]);
+                }
+            }
+            return result;
+        }
+
+        function renderJsonExplorer(key, value, path) {
+            const container = document.createElement('div');
+            
+            if (typeof value === 'object' && value !== null) {
+                const isArray = Array.isArray(value);
+                const header = document.createElement('div');
+                header.className = 'expandable';
+                
+                const keySpan = document.createElement('span');
+                keySpan.className = 'key';
+                keySpan.textContent = key + ': ';
+                
+                const typeSpan = document.createElement('span');
+                typeSpan.textContent = isArray ? 
+                    `Array(${value.length})` : 
+                    `Object(${Object.keys(value).length})`;
+                
+                const collapseBtn = document.createElement('span');
+                collapseBtn.className = 'collapse-btn';
+                collapseBtn.textContent = '[-]';
+                
+                header.appendChild(keySpan);
+                header.appendChild(typeSpan);
+                header.appendChild(collapseBtn);
+                container.appendChild(header);
+                
+                const content = document.createElement('div');
+                content.style.marginLeft = '20px';
+                
+                header.addEventListener('click', function(e) {
+                    if (e.target !== collapseBtn) {
+                        content.classList.toggle('hidden');
+                        collapseBtn.textContent = content.classList.contains('hidden') ? '[+]' : '[-]';
+                    }
+                    
+                    // Update path display
+                    const newPath = [...path, key].filter(p => p !== 'root');
+                    pathDisplay.textContent = newPath.length ? 'root.' + newPath.join('.') : 'root';
+                    
+                    e.stopPropagation();
+                });
+                
+                collapseBtn.addEventListener('click', function(e) {
+                    content.classList.toggle('hidden');
+                    collapseBtn.textContent = content.classList.contains('hidden') ? '[+]' : '[-]';
+                    e.stopPropagation();
+                });
+
+                if (isArray) {
+                    value.forEach((item, index) => {
+                        content.appendChild(renderJsonExplorer(index, item, [...path, key]));
+                    });
+                } else {
+                    for (const k in value) {
+                        content.appendChild(renderJsonExplorer(k, value[k], [...path, key]));
+                    }
+                }
+                
+                container.appendChild(content);
+            } else {
+                container.className = 'property';
+                
+                const keySpan = document.createElement('span');
+                keySpan.className = 'key';
+                keySpan.textContent = key + ': ';
+                container.appendChild(keySpan);
+                
+                const valueSpan = document.createElement('span');
+                if (typeof value === 'string') {
+                    valueSpan.className = 'string';
+                    valueSpan.textContent = `"${value}"`;
+                } else if (typeof value === 'number') {
+                    valueSpan.className = 'number';
+                    valueSpan.textContent = value;
+                } else if (typeof value === 'boolean') {
+                    valueSpan.className = 'boolean';
+                    valueSpan.textContent = value;
+                } else {
+                    valueSpan.className = 'null';
+                    valueSpan.textContent = 'null';
+                }
+                container.appendChild(valueSpan);
+                
+                container.addEventListener('click', function(e) {
+                    const newPath = [...path, key].filter(p => p !== 'root');
+                    pathDisplay.textContent = newPath.length ? 'root.' + newPath.join('.') : 'root';
+                    e.stopPropagation();
+                });
+            }
+            
+            return container;
+        }
+
+        function renderJsonTree(data) {
+            const ul = document.createElement('ul');
+            
+            if (typeof data !== 'object' || data === null) {
+                const li = document.createElement('li');
+                li.textContent = data;
+                ul.appendChild(li);
+                return ul;
+            }
+            
+            const isArray = Array.isArray(data);
+            
+            if (isArray) {
+                data.forEach((item, index) => {
+                    const li = document.createElement('li');
+                    const expandable = document.createElement('span');
+                    expandable.className = 'expandable';
+                    expandable.textContent = `[${index}]`;
+                    li.appendChild(expandable);
+                    
+                    if (typeof item === 'object' && item !== null) {
+                        const childUl = document.createElement('ul');
+                        childUl.appendChild(renderJsonTree(item));
+                        childUl.style.display = 'none';
+                        li.appendChild(childUl);
+                        
+                        expandable.addEventListener('click', function() {
+                            childUl.style.display = childUl.style.display === 'none' ? 'block' : 'none';
+                        });
+                    } else {
+                        li.appendChild(document.createTextNode(': ' + formatValue(item)));
+                    }
+                    
+                    ul.appendChild(li);
+                });
+            } else {
+                for (const key in data) {
+                    const li = document.createElement('li');
+                    const expandable = document.createElement('span');
+                    expandable.className = 'expandable';
+                    expandable.textContent = key;
+                    li.appendChild(expandable);
+                    
+                    if (typeof data[key] === 'object' && data[key] !== null) {
+                        const childUl = document.createElement('ul');
+                        childUl.appendChild(renderJsonTree(data[key]));
+                        childUl.style.display = 'none';
+                        li.appendChild(childUl);
+                        
+                        expandable.addEventListener('click', function() {
+                            childUl.style.display = childUl.style.display === 'none' ? 'block' : 'none';
+                        });
+                    } else {
+                        li.appendChild(document.createTextNode(': ' + formatValue(data[key])));
+                    }
+                    
+                    ul.appendChild(li);
+                }
+            }
+            
+            return ul;
+        }
+
+        function renderJsonTable(data) {
+            const container = document.createElement('div');
+            
+            if (typeof data !== 'object' || data === null) {
+                container.textContent = formatValue(data);
+                return container;
+            }
+            
+            if (Array.isArray(data)) {
+                if (data.length === 0) {
+                    container.textContent = '[]';
+                    return container;
+                }
+                
+                if (typeof data[0] === 'object' && data[0] !== null) {
+                    // Array of objects - create a table
+                    const table = document.createElement('table');
+                    
+                    // Create headers from first object's keys
+                    const headers = Object.keys(data[0]);
+                    const headerRow = document.createElement('tr');
+                    headers.forEach(header => {
+                        const th = document.createElement('th');
+                        th.textContent = header;
+                        headerRow.appendChild(th);
+                    });
+                    table.appendChild(headerRow);
+                    
+                    // Add rows for each object
+                    data.forEach(item => {
+                        const row = document.createElement('tr');
+                        headers.forEach(key => {
+                            const td = document.createElement('td');
+                            if (typeof item[key] === 'object' && item[key] !== null) {
+                                td.appendChild(renderJsonTable(item[key]));
+                            } else {
+                                td.textContent = formatValue(item[key]);
+                            }
+                            row.appendChild(td);
+                        });
+                        table.appendChild(row);
+                    });
+                    
+                    container.appendChild(table);
+                } else {
+                    // Simple array - create a single-column table
+                    const table = document.createElement('table');
+                    
+                    // Header
+                    const headerRow = document.createElement('tr');
+                    const indexTh = document.createElement('th');
+                    indexTh.textContent = 'Index';
+                    const valueTh = document.createElement('th');
+                    valueTh.textContent = 'Value';
+                    headerRow.appendChild(indexTh);
+                    headerRow.appendChild(valueTh);
+                    table.appendChild(headerRow);
+                    
+                    // Values
+                    data.forEach((item, index) => {
+                        const row = document.createElement('tr');
+                        
+                        const indexTd = document.createElement('td');
+                        indexTd.textContent = index;
+                        row.appendChild(indexTd);
+                        
+                        const valueTd = document.createElement('td');
+                        valueTd.textContent = formatValue(item);
+                        row.appendChild(valueTd);
+                        
+                        table.appendChild(row);
+                    });
+                    
+                    container.appendChild(table);
+                }
+            } else {
+                // Regular object
+                const table = document.createElement('table');
+                
+                // Header
+                const headerRow = document.createElement('tr');
+                const keyTh = document.createElement('th');
+                keyTh.textContent = 'Key';
+                const valueTh = document.createElement('th');
+                valueTh.textContent = 'Value';
+                headerRow.appendChild(keyTh);
+                headerRow.appendChild(valueTh);
+                table.appendChild(headerRow);
+                
+                // Values
+                for (const key in data) {
+                    const row = document.createElement('tr');
+                    
+                    const keyTd = document.createElement('td');
+                    keyTd.textContent = key;
+                    row.appendChild(keyTd);
+                    
+                    const valueTd = document.createElement('td');
+                    if (typeof data[key] === 'object' && data[key] !== null) {
+                        valueTd.appendChild(renderJsonTable(data[key]));
+                    } else {
+                        valueTd.textContent = formatValue(data[key]);
+                    }
+                    row.appendChild(valueTd);
+                    
+                    table.appendChild(row);
+                }
+                
+                container.appendChild(table);
+            }
+            
+            return container;
+        }
+
+        function formatValue(value) {
+            if (typeof value === 'string') {
+                return `"${value}"`;
+            }
+            return String(value);
+        }
+
+        function handleSearch() {
+            const searchTerm = searchInput.value.toLowerCase();
+            if (!searchTerm) {
+                clearHighlights();
+                return;
+            }
+            
+            const allElements = document.querySelectorAll('.property, .expandable');
+            let foundCount = 0;
+            
+            allElements.forEach(el => {
+                el.classList.remove('highlight');
+                
+                // Check if the element or its children contain the search term
+                if (el.textContent.toLowerCase().includes(searchTerm)) {
+                    el.classList.add('highlight');
+                    
+                    // Make sure parents are expanded to show the match
+                    let parent = el.parentElement;
+                    while (parent && !parent.classList.contains('json-container')) {
+                        if (parent.classList.contains('hidden')) {
+                            parent.classList.remove('hidden');
+                            
+                            // Update the collapse button of the parent's sibling
+                            const parentSibling = parent.previousElementSibling;
+                            if (parentSibling && parentSibling.querySelector('.collapse-btn')) {
+                                parentSibling.querySelector('.collapse-btn').textContent = '[-]';
+                            }
+                        }
+                        parent = parent.parentElement;
+                    }
+                    
+                    foundCount++;
+                }
+            });
+            
+            // Scroll to the first match
+            const firstMatch = document.querySelector('.highlight');
+            if (firstMatch) {
+                firstMatch.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+        }
+
+        function clearHighlights() {
+            document.querySelectorAll('.highlight').forEach(el => {
+                el.classList.remove('highlight');
+            });
+        }
+
+        function expandAll() {
+            document.querySelectorAll('.hidden').forEach(el => {
+                el.classList.remove('hidden');
+            });
+            
+            document.querySelectorAll('.collapse-btn').forEach(btn => {
+                btn.textContent = '[-]';
+            });
+            
+            document.querySelectorAll('ul').forEach(ul => {
+                ul.style.display = 'block';
+            });
+        }
+
+        function collapseAll() {
+            const topLevelContents = document.querySelectorAll('.json-container > div > div:not(.expandable)');
+            topLevelContents.forEach(content => {
+                if (!content.classList.contains('hidden')) {
+                    content.classList.add('hidden');
+                }
+            });
+            
+            document.querySelectorAll('.json-container > div > .expandable .collapse-btn').forEach(btn => {
+                btn.textContent = '[+]';
+            });
+            
+            document.querySelectorAll('.json-container > ul > li > ul').forEach(ul => {
+                ul.style.display = 'none';
+            });
+        }
+
+        function debounce(func, wait) {
+            let timeout;
+            return function() {
+                const context = this;
+                const args = arguments;
+                clearTimeout(timeout);
+                timeout = setTimeout(() => {
+                    func.apply(context, args);
+                }, wait);
+            };
+        }
+
+        // Initialize with sample data
+        document.addEventListener('DOMContentLoaded', function() {
+            // Uncomment this to automatically load sample data on page load
+            // loadSampleData();
+        });
+    </script>
+</body>
+</html> 

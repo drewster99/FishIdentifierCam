@@ -1,0 +1,10 @@
+---
+description: 
+globs: 
+alwaysApply: false
+---
+This is an Xcode project that builds an iOS app. The project will be a fish identifier app. The main view will be a live camera and the user will be able to select a photo they've already taken.
+
+The xcode project folder is @FishIdentifierCam.xcodeproj. The Xcode scheme is also called "FishIdentifierCam".
+
+Use "drews-xcode-thing" to build the project. You will get any build errors or warnings returned. Fix those immediately.  If you try to fix the same issue 3 times and haven't fixed it, stop and ask to give the user a chance to intercede.

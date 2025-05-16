@@ -1,0 +1,12 @@
+---
+description: 
+globs: 
+alwaysApply: false
+---
+Before you start on any new project, be sure you understand the plan for the project. Ask clarifying questions of the user. 
+
+For every project, you will summarize the project plan in a file named "projectspec.md". 
+
+For both new and ongoing projects, you will keep this file updated as plans, designs, and features change. The last section of this file will be an ongoing "To do" list - next steps for the project. You will update this immediately when progress is made on that list or the list needs to change, or when details about one of the steps gets more detail.
+
+Always read the @projectspec.md file and make sure the work we are doing is in-line when the plan. If it isn't, make sure that the change came from a decision made by the 

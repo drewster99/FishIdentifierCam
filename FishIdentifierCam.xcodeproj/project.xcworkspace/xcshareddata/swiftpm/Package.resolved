@@ -1,0 +1,15 @@
+{
+  "originHash" : "69f298e18f9afe9cabb54dda9c1bac3dfad5eb2e49537d99c42b3231ae29dc98",
+  "pins" : [
+    {
+      "identity" : "capturer",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/FluidGroup/Capturer.git",
+      "state" : {
+        "revision" : "566392867d38d2f5f90b4b3cc5e572a129f71ea4",
+        "version" : "3.0.0"
+      }
+    }
+  ],
+  "version" : 3
+}
