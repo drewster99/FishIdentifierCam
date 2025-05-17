@@ -43,6 +43,7 @@ struct FishIdentifierCamApp: App {
             ContentView()
                 .preferredColorScheme(.dark)
                 .colorScheme(.dark)
+                .environmentObject(appAPI)
         }
     }
 }

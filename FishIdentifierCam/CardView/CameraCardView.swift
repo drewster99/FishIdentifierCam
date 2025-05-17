@@ -19,14 +19,13 @@ struct CameraCardView: View {
     @EnvironmentObject var viewModel: CameraViewModel
 
     var body: some View {
-        CameraPreviewView()
-            .aspectRatio(contentMode: .fill)
-            .overlay(
-                VStack(alignment: .center) {
-                    Spacer()
-                    CaptureButton()
-                        .padding()
-                }
-            )
+//        ZStack(alignment: .bottom) {
+//        GeometryReader { pr in
+            CameraPreviewView()
+//                .overlay(Text("\(pr.size.width)x\(pr.size.height)"))
+//        }
+//                .aspectRatio(contentMode: .fill)
+//            CaptureButton()
+//        }
     }
 }

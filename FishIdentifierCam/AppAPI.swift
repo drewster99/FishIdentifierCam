@@ -364,6 +364,10 @@ extension AppAPI {
 
         guard let httpResponse = response as? HTTPURLResponse,
               (200..<300).contains(httpResponse.statusCode) else {
+            if let httpResponse = response as? HTTPURLResponse {
+                Self.logger.error("HTTP status code: \(httpResponse.statusCode)")
+            }
+            Self.logger.error("Bad server response")
             throw URLError(.badServerResponse)
         }
 

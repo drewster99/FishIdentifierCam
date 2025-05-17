@@ -15,6 +15,7 @@ struct ContentView: View {
     @State private var capturedPhotos: [CapturedPhoto] = []
     @State private var selectedPhoto: CapturedPhoto?
     @StateObject private var cameraViewModel = CameraViewModel()
+    @EnvironmentObject private var appAPI: AppAPI
     @State private var isPresentingPhotosPicker = false
     @State private var pickedPhotoItems: [PhotosPickerItem] = []
 
@@ -45,21 +46,11 @@ struct ContentView: View {
 
                     Spacer()
 
-//                    Button(action: {
-//                        // Photo library import action
-//                        loadPickedPhotos()
-//                    }) {
-                        PhotosPicker(selection: $pickedPhotoItems,
-                                     maxSelectionCount: nil,
-                                     selectionBehavior: .default,
-                                     matching: .any(of: [.images]),
-                                     preferredItemEncoding: .automatic) {
+                    Text("\(capturedPhotos.count) photos")
+                        .font(.caption)
+                    Spacer()
 
-                            Image(systemName: "photo")
-                                .font(.system(size: 22))
-                                .foregroundColor(.primary)
-                        }
-//                    }
+                    Text("")
                 }
                 .padding()
             }
@@ -74,7 +65,7 @@ struct ContentView: View {
                 photos: capturedPhotos,
                 selectedPhoto: $selectedPhoto
             )
-            .frame(maxHeight: 400.0)
+            .layoutPriority(2)
             .environment(\.cameraAndPhotoSize, sizesFor())
 
             .onCameraButton {
@@ -88,7 +79,7 @@ struct ContentView: View {
                         capturedPhotos.append(newPhoto)
                         selectedPhoto = newPhoto
                     }
-                    
+
                     // Save the new photo
                     savePhoto(newPhoto)
                 }
@@ -113,7 +104,15 @@ struct ContentView: View {
                     }
                     Spacer()
                     Button {
-
+                        Task {
+                            do {
+                                let request = try AppAPI.FishIdentificationRequest.create(with: selectedPhoto.image)
+                                let bla = try await appAPI.requestUpload(request)
+                                print("got back bla...\(bla)")
+                            } catch {
+                                print("Error doing the thing: \(error) \(error.localizedDescription)")
+                            }
+                        }
                     } label: {
                         Text("Identify Fish")
                             .padding()
@@ -121,22 +120,26 @@ struct ContentView: View {
                     }
                     .buttonStyle(.borderedProminent)
                 } else {
-                    Text("Select a photo")
+                    VStack(spacing: 25) {
+                        Text("Take a pic")
+                        Text("or")
+
+                        PhotosPicker(selection: $pickedPhotoItems,
+                                     maxSelectionCount: nil,
+                                     selectionBehavior: .default,
+                                     matching: .any(of: [.images]),
+                                     preferredItemEncoding: .automatic) {
+                            Text("Choose other photos")
+                                .contentShape(Rectangle())
+                        }
+                    }
                 }
             }
+            .frame(minHeight: 200)
         }
-//        .sheet(isPresented: $isPresentingPhotosPicker, onDismiss: {
-//            // on dismiss
-//            print("*** pickerdoo** - \(pickedPhotoItems.count) items")
-//            loadPickedPhotos()
-//        }, content: {
-//            PhotosPicker("Pick photos",
-//                         selection: $pickedPhotoItems,
-//                         maxSelectionCount: nil,
-//                         selectionBehavior: .default,
-//                         matching: .any(of: [.images]),
-//                         preferredItemEncoding: .automatic)
-//        })
+        .background(content: {
+            BackgroundAnimation()
+        })
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .environmentObject(cameraViewModel)
         .onAppear {

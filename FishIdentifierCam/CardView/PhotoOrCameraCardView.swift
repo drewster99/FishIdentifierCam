@@ -19,17 +19,11 @@ struct PhotoOrCameraCardView: View {
         Group {
             if let capturedPhoto {
                 PhotoCardView(image: capturedPhoto.image)
-//                    .frame(width: cameraAndPhotoSize.cameraSize.width,
-//                           height: cameraAndPhotoSize.cameraSize.height)
-                    .clipShape(RoundedRectangle(cornerRadius: 23.0, style: .continuous))
-//                    .frame(width: cameraAndPhotoSize.photoSize.width,
-//                           height: cameraAndPhotoSize.photoSize.height)
+//                    .clipShape(RoundedRectangle(cornerRadius: 23.0, style: .continuous))
                     .transition(.scale)
             } else {
                 CameraCardView()
-//                    .frame(width: cameraAndPhotoSize.cameraSize.width,
-//                           height: cameraAndPhotoSize.cameraSize.height)
-                    .clipShape(RoundedRectangle(cornerRadius: 23.0, style: .continuous))
+//                    .clipShape(RoundedRectangle(cornerRadius: 23.0, style: .continuous))
                     .transition(.scale)
             }
         }

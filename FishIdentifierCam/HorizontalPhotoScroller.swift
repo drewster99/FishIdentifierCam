@@ -15,18 +15,24 @@ struct HorizontalPhotoScroller: View {
                     // Display all captured photos
                     ForEach(photos) { photo in
                         PhotoCardView(image: photo.image)
-                            .aspectRatio(1.0, contentMode: .fill)
                             .containerRelativeFrame(.horizontal)
+                            .aspectRatio(1.0, contentMode: .fill)
                             .clipped()
                     }
 
                     // Camera view at the far right
                     CameraCardView()
-                        .aspectRatio(1.0, contentMode: .fill)
                         .containerRelativeFrame(.horizontal)
+                        .aspectRatio(1.0, contentMode: .fill)
                         .clipped()
+                        .overlay(alignment: .bottom, content: {
+                                CaptureButton()
+                                .padding(.bottom, 15)
+
+                        })
                         .id(cameraViewID)
                 }
+
                 .scrollTargetLayout()
                 .onAppear {
                     DispatchQueue.main.asyncAfter(deadline: .now() + 0.50) {

@@ -13,9 +13,13 @@ struct PhotoCardView: View {
     let image: UIImage
     
     var body: some View {
-        Image(uiImage: image)
-            .resizable()
-            .aspectRatio(contentMode: .fill)
-
+//        GeometryReader { pr in
+            Image(uiImage: image)
+                .resizable()
+                .scaledToFill()
+            //            .aspectRatio(contentMode: .fill)
+//                .overlay(Text("\(pr.size.width)x\(pr.size.height)"))
+//
+//        }
     }
 }
