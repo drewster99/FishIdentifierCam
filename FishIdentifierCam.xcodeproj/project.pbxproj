@@ -7,6 +7,13 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		4957C13F2DD77B690072E8BB /* FirebaseAnalyticsOnDeviceConversion in Frameworks */ = {isa = PBXBuildFile; productRef = 4957C13E2DD77B690072E8BB /* FirebaseAnalyticsOnDeviceConversion */; };
+		4957C1412DD77B690072E8BB /* FirebaseAnalyticsWithoutAdIdSupport in Frameworks */ = {isa = PBXBuildFile; productRef = 4957C1402DD77B690072E8BB /* FirebaseAnalyticsWithoutAdIdSupport */; };
+		4957C1432DD77B690072E8BB /* FirebaseAppCheck in Frameworks */ = {isa = PBXBuildFile; productRef = 4957C1422DD77B690072E8BB /* FirebaseAppCheck */; };
+		4957C1452DD77B690072E8BB /* FirebaseAuth in Frameworks */ = {isa = PBXBuildFile; productRef = 4957C1442DD77B690072E8BB /* FirebaseAuth */; };
+		4957C1472DD77B690072E8BB /* FirebaseCore in Frameworks */ = {isa = PBXBuildFile; productRef = 4957C1462DD77B690072E8BB /* FirebaseCore */; };
+		4957C1492DD77B690072E8BB /* FirebaseCrashlytics in Frameworks */ = {isa = PBXBuildFile; productRef = 4957C1482DD77B690072E8BB /* FirebaseCrashlytics */; };
+		4957C14C2DD77B890072E8BB /* NCCOpenAppleSearchAdsInstallAttribution in Frameworks */ = {isa = PBXBuildFile; productRef = 4957C14B2DD77B890072E8BB /* NCCOpenAppleSearchAdsInstallAttribution */; };
 		496430B52DD3EAD40069AD21 /* Capturer in Frameworks */ = {isa = PBXBuildFile; productRef = 496430B42DD3EAD40069AD21 /* Capturer */; };
 /* End PBXBuildFile section */
 
@@ -15,6 +22,11 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
+		4957F7E72DD77EE00072E8BB /* firebaseProj */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = firebaseProj;
+			sourceTree = "<group>";
+		};
 		496430992DD3D3A60069AD21 /* FishIdentifierCam */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			path = FishIdentifierCam;
@@ -27,7 +39,14 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				4957C1432DD77B690072E8BB /* FirebaseAppCheck in Frameworks */,
+				4957C14C2DD77B890072E8BB /* NCCOpenAppleSearchAdsInstallAttribution in Frameworks */,
+				4957C1452DD77B690072E8BB /* FirebaseAuth in Frameworks */,
 				496430B52DD3EAD40069AD21 /* Capturer in Frameworks */,
+				4957C1492DD77B690072E8BB /* FirebaseCrashlytics in Frameworks */,
+				4957C1412DD77B690072E8BB /* FirebaseAnalyticsWithoutAdIdSupport in Frameworks */,
+				4957C1472DD77B690072E8BB /* FirebaseCore in Frameworks */,
+				4957C13F2DD77B690072E8BB /* FirebaseAnalyticsOnDeviceConversion in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -37,6 +56,7 @@
 		4964308E2DD3D3A60069AD21 = {
 			isa = PBXGroup;
 			children = (
+				4957F7E72DD77EE00072E8BB /* firebaseProj */,
 				496430992DD3D3A60069AD21 /* FishIdentifierCam */,
 				496430982DD3D3A60069AD21 /* Products */,
 			);
@@ -71,6 +91,13 @@
 			name = FishIdentifierCam;
 			packageProductDependencies = (
 				496430B42DD3EAD40069AD21 /* Capturer */,
+				4957C13E2DD77B690072E8BB /* FirebaseAnalyticsOnDeviceConversion */,
+				4957C1402DD77B690072E8BB /* FirebaseAnalyticsWithoutAdIdSupport */,
+				4957C1422DD77B690072E8BB /* FirebaseAppCheck */,
+				4957C1442DD77B690072E8BB /* FirebaseAuth */,
+				4957C1462DD77B690072E8BB /* FirebaseCore */,
+				4957C1482DD77B690072E8BB /* FirebaseCrashlytics */,
+				4957C14B2DD77B890072E8BB /* NCCOpenAppleSearchAdsInstallAttribution */,
 			);
 			productName = FishIdentifierCam;
 			productReference = 496430972DD3D3A60069AD21 /* FishIdentifierCam.app */;
@@ -102,6 +129,8 @@
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
 				496430B32DD3EAD40069AD21 /* XCRemoteSwiftPackageReference "Capturer" */,
+				4957C13D2DD77B690072E8BB /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
+				4957C14A2DD77B890072E8BB /* XCRemoteSwiftPackageReference "NCC-Open-Apple-Search-Ads-Install-Attribution" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 496430982DD3D3A60069AD21 /* Products */;
@@ -260,6 +289,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = FishIdentifierCam/FishIdentifierCam.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = P8MA38JTXY;
@@ -277,7 +307,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.nuclearcyborg.FishIdentifierCam;
+				PRODUCT_BUNDLE_IDENTIFIER = com.nuclearcyborg.fishidentifiercam;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
@@ -290,6 +320,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = FishIdentifierCam/FishIdentifierCam.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = P8MA38JTXY;
@@ -307,7 +338,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.nuclearcyborg.FishIdentifierCam;
+				PRODUCT_BUNDLE_IDENTIFIER = com.nuclearcyborg.fishidentifiercam;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
@@ -339,6 +370,22 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
+		4957C13D2DD77B690072E8BB /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/firebase/firebase-ios-sdk.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 11.12.0;
+			};
+		};
+		4957C14A2DD77B890072E8BB /* XCRemoteSwiftPackageReference "NCC-Open-Apple-Search-Ads-Install-Attribution" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "git@github.com:drewster99/NCC-Open-Apple-Search-Ads-Install-Attribution.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 1.0.0;
+			};
+		};
 		496430B32DD3EAD40069AD21 /* XCRemoteSwiftPackageReference "Capturer" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/FluidGroup/Capturer.git";
@@ -350,6 +397,41 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		4957C13E2DD77B690072E8BB /* FirebaseAnalyticsOnDeviceConversion */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 4957C13D2DD77B690072E8BB /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseAnalyticsOnDeviceConversion;
+		};
+		4957C1402DD77B690072E8BB /* FirebaseAnalyticsWithoutAdIdSupport */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 4957C13D2DD77B690072E8BB /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseAnalyticsWithoutAdIdSupport;
+		};
+		4957C1422DD77B690072E8BB /* FirebaseAppCheck */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 4957C13D2DD77B690072E8BB /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseAppCheck;
+		};
+		4957C1442DD77B690072E8BB /* FirebaseAuth */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 4957C13D2DD77B690072E8BB /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseAuth;
+		};
+		4957C1462DD77B690072E8BB /* FirebaseCore */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 4957C13D2DD77B690072E8BB /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseCore;
+		};
+		4957C1482DD77B690072E8BB /* FirebaseCrashlytics */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 4957C13D2DD77B690072E8BB /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseCrashlytics;
+		};
+		4957C14B2DD77B890072E8BB /* NCCOpenAppleSearchAdsInstallAttribution */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 4957C14A2DD77B890072E8BB /* XCRemoteSwiftPackageReference "NCC-Open-Apple-Search-Ads-Install-Attribution" */;
+			productName = NCCOpenAppleSearchAdsInstallAttribution;
+		};
 		496430B42DD3EAD40069AD21 /* Capturer */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = 496430B32DD3EAD40069AD21 /* XCRemoteSwiftPackageReference "Capturer" */;

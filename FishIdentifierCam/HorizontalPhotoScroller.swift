@@ -5,7 +5,9 @@ struct HorizontalPhotoScroller: View {
     let photos: [CapturedPhoto]
     @Binding var selectedPhoto: CapturedPhoto?
     @Environment(\.cameraAndPhotoSize) private var cameraAndPhotoSize: CameraAndPhotoSize
-    
+    @State var idAtCurrentScrollPosition: CapturedPhoto.ID?
+    let cameraViewID = CapturedPhoto.cameraViewID
+
     var body: some View {
         ScrollView(.horizontal, showsIndicators: false) {
             ScrollViewReader { scrollProxy in
@@ -15,47 +17,48 @@ struct HorizontalPhotoScroller: View {
                         PhotoCardView(image: photo.image)
                             .aspectRatio(1.0, contentMode: .fill)
                             .containerRelativeFrame(.horizontal)
-//                            .containerRelativeFrame(.horizontal, alignment: .center) { width, _ in
-//                                width - (cameraAndPhotoSize.spacing / 2.0)
-//                            }
-//                            .containerRelativeFrame([.vertical], alignment: .top) { height, _ in height * 0.60 }
-//                            .containerRelativeFrame([.horizontal], alignment: .top) { width, _ in
-//                                width - (cameraAndPhotoSize.spacing / 2.0)
-//                            }
-//                            .containerRelativeFrame(.horizontal, count: 5, span: 4)
                             .clipped()
-                            .id(photo.id)
                     }
 
                     // Camera view at the far right
                     CameraCardView()
                         .aspectRatio(1.0, contentMode: .fill)
                         .containerRelativeFrame(.horizontal)
-//                        .containerRelativeFrame(.horizontal, alignment: .center) { width, _ in
-//                            width - (cameraAndPhotoSize.spacing / 2.0)
-//                        }
-//                        .containerRelativeFrame([.vertical], alignment: .top) { height, _ in height * 0.60 }
-//                        .containerRelativeFrame([.horizontal], alignment: .top) { width, _ in
-//                            width - (cameraAndPhotoSize.spacing / 2.0)
-//                        }
                         .clipped()
-                        .id("camera")
+                        .id(cameraViewID)
                 }
                 .scrollTargetLayout()
                 .onAppear {
-                    // If no photo is selected, ensure camera view is centered
-                    if selectedPhoto == nil {
-                        scrollProxy.scrollTo("camera", anchor: .center)
-                    } else if let photo = selectedPhoto {
-                        // Ensure the selected photo is centered
-                        scrollProxy.scrollTo(photo.id, anchor: .center)
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.50) {
+                        // If no photo is selected, ensure camera view is centered
+                        if selectedPhoto == nil {
+                            print("*** appear - selected = nil")
+                            scrollProxy.scrollTo(cameraViewID, anchor: .center)
+                        } else if let photo = selectedPhoto {
+                            // Ensure the selected photo is centered
+                            print("*** appear - selected is photo \(photo.id)")
+                            scrollProxy.scrollTo(photo.id, anchor: .center)
+                        }
                     }
                 }
             }
         }
-//        .safeAreaPadding(cameraAndPhotoSize.spacing)
+        .onChange(of: idAtCurrentScrollPosition, initial: true) { old, new in
+            guard let id = idAtCurrentScrollPosition else {
+                selectedPhoto = nil
+                return
+            }
+            guard id != CapturedPhoto.cameraViewID else {
+                selectedPhoto = nil
+                return
+            }
+            selectedPhoto = photos.first(where: { $0.id == id })
+        }
+        .scrollPosition(id: $idAtCurrentScrollPosition)
         .scrollTargetBehavior(.viewAligned) // Makes the scroll view snap to each item
-//        .contentMargins(.horizontal, cameraAndPhotoSize.spacing*3)
+        .overlay(alignment: .top) {
+            Text("\(idAtCurrentScrollPosition ?? "n/a")")
+        }
     }
 }
 
@@ -64,4 +67,4 @@ extension HorizontalPhotoScroller {
     func onCameraButton(action: @escaping () -> Void) -> some View {
         self.environment(\.cameraButtonAction, action)
     }
-} 
+}

@@ -23,12 +23,12 @@ class StorageManager {
     // Save a CapturedPhoto to disk
     func savePhoto(_ photo: CapturedPhoto) throws {
         let photoData = try JSONEncoder().encode(photo.metadata)
-        let photoFilePath = photoDirectory.appendingPathComponent("\(photo.id.uuidString).json")
+        let photoFilePath = photoDirectory.appendingPathComponent("\(photo.id).json")
         try photoData.write(to: photoFilePath)
         
         // Save the image separately
         if let imageData = photo.image.jpegData(compressionQuality: 0.8) {
-            let imageFilePath = photoDirectory.appendingPathComponent("\(photo.id.uuidString).jpg")
+            let imageFilePath = photoDirectory.appendingPathComponent("\(photo.id).jpg")
             try imageData.write(to: imageFilePath)
         } else {
             throw StorageError.imageConversionFailed
@@ -73,7 +73,6 @@ class StorageManager {
                         
                         // Create CapturedPhoto from components
                         let photo = CapturedPhoto(
-                            id: UUID(uuidString: photoID) ?? UUID(),
                             image: image,
                             identificationStatus: metadata.identificationStatus,
                             fishData: metadata.fishData,
@@ -97,8 +96,8 @@ class StorageManager {
     
     // Delete a photo
     func deletePhoto(_ photo: CapturedPhoto) throws {
-        let photoFilePath = photoDirectory.appendingPathComponent("\(photo.id.uuidString).json")
-        let imageFilePath = photoDirectory.appendingPathComponent("\(photo.id.uuidString).jpg")
+        let photoFilePath = photoDirectory.appendingPathComponent("\(photo.id).json")
+        let imageFilePath = photoDirectory.appendingPathComponent("\(photo.id).jpg")
         
         // Remove metadata file
         if fileManager.fileExists(atPath: photoFilePath.path) {

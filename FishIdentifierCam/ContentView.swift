@@ -81,8 +81,7 @@ struct ContentView: View {
                 print("Camera button tap")
                 cameraViewModel.capturePhoto { photo in
                     print("photo captured")
-                    let newPhoto = CapturedPhoto(id: UUID(),
-                                                 image: photo,
+                    let newPhoto = CapturedPhoto(image: photo,
                                                  identificationStatus: .notProcessed,
                                                  fishData: nil)
                     withAnimation {
@@ -95,6 +94,36 @@ struct ContentView: View {
                 }
             }
             Spacer()
+            VStack {
+                if let selectedPhoto {
+                    HStack {
+                        Text("ID")
+                        Spacer()
+                        Text(selectedPhoto.id.lowercased().suffix(7))
+                    }
+                    HStack {
+                        Text("Status")
+                        Spacer()
+                        Text("\(selectedPhoto.identificationStatus)")
+                    }
+                    HStack {
+                        Text("Date")
+                        Spacer()
+                        Text("\(selectedPhoto.captureDate.formatted(.dateTime.year().month().day().hour().minute()))")
+                    }
+                    Spacer()
+                    Button {
+
+                    } label: {
+                        Text("Identify Fish")
+                            .padding()
+                            .contentShape(Rectangle())
+                    }
+                    .buttonStyle(.borderedProminent)
+                } else {
+                    Text("Select a photo")
+                }
+            }
         }
 //        .sheet(isPresented: $isPresentingPhotosPicker, onDismiss: {
 //            // on dismiss
@@ -127,7 +156,6 @@ struct ContentView: View {
                     case .success(let imageData?):
                         if let uiImage = UIImage(data: imageData) {
                             let newPhoto = CapturedPhoto(
-                                id: UUID(),
                                 image: uiImage,
                                 identificationStatus: .notProcessed,
                                 fishData: nil
@@ -178,23 +206,27 @@ struct ContentView: View {
 }
 
 // Model to represent a captured photo with identification status
-struct CapturedPhoto: Identifiable {
-    var id = UUID()
+struct CapturedPhoto: Identifiable, Hashable, Equatable {
+    typealias ID = String
+    var id = UUID().uuidString
     var image: UIImage
     var identificationStatus: IdentificationStatus = .notProcessed
     var fishData: FishData? = nil
     var captureDate: Date = Date()
     
-    enum IdentificationStatus: Codable {
+    enum IdentificationStatus: Codable, Identifiable, Hashable, Equatable {
+        public var id: Self { self }
         case notProcessed
         case processing
         case identified
         case failed
     }
+
+    static public let cameraViewID = "camera view identifier"
 }
 
 // Simple fish data model (will be expanded based on the API response)
-struct FishData: Codable {
+struct FishData: Codable, Hashable, Equatable {
     var scientificName: String
     var commonName: String
     var confidence: Double
